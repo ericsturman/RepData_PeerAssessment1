@@ -6,30 +6,44 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Loading and preprocessing the data
-```{r}
+```{r dataload}
 stepInfo = read.csv("./activity.csv")
 stepInfoNoNA <- stepInfo[is.na(stepInfo$steps)==FALSE,]
-totalStepsPerDay = aggregate(stepInfoNoNA$steps, by=list(stepInfoNoNA$date), FUN=sum)
-hist(totalStepsPerDay$x, xlab = "Total Steps (per day)")
+totalStepsPerDay <- aggregate(stepInfoNoNA$steps, by=list(stepInfoNoNA$date), FUN=sum)
+hist(totalStepsPerDay$x, xlab = "Total Steps (per day)", main="Histogram of Steps per Day")
 mean(totalStepsPerDay$x)
 median(totalStepsPerDay$x)
 ```
 ## What is the average daily activity pattern?
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r averageactivitypattern}
+meanByInterval = aggregate(stepInfoNoNA$steps, by=list(stepInfoNoNA$interval), FUN=mean)
+plot(x=meanByInterval$Group.1, y=meanByInterval$x, type = "l", xlab="Interval", ylab="Mean Number of Steps")
+meanByInterval[meanByInterval$x == max(meanByInterval$x), 1]
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=TRUE}
-plot(pressure)
+## Imputing missing values
+```{r imputation}
+nrow(stepInfo[is.na(stepInfo$steps) == TRUE,])
+imputed<- stepInfo$steps
+imputed[is.na(imputed)] <- mean(stepInfoNoNA$steps)
+stepInfo$imputed = imputed
+totalStepsPerDayImp <- aggregate(stepInfo$imputed, by=list(stepInfo$date), FUN=sum)
+hist(totalStepsPerDayImp$x, xlab = "Total Steps (per day)", main = "Histogram of Total Steps per Day")
+mean(totalStepsPerDayImp$x)
+median(totalStepsPerDayImp$x)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Are there differences in activity patterns between weekdays and weekends?
+
+```{r weekdaysweekends}
+library(ggplot2)
+isWeekend <- weekdays(as.Date(stepInfo$date, '%Y-%m-%d')) %in% c("Sunday", "Saturday")
+weekendWeekday <- isWeekend
+weekendWeekday[isWeekend == TRUE] <- "weekend"
+weekendWeekday[isWeekend == FALSE] <- "weekday"
+stepInfo$weekendWeekday = weekendWeekday
+aggregatedWeekday <- aggregate(stepInfo$imputed, by=list(weekdayOrWeekend = stepInfo$weekendWeekday, interval = stepInfo$interval), FUN=mean)
+plot <- qplot(data=aggregatedWeekday, x=aggregatedWeekday$interval, y=aggregatedWeekday$x, geom = "line")
+plot <- plot + facet_grid(aggregatedWeekday$weekdayOrWeekend~.) + ylab("Mean Number of Steps") + xlab("Interval")
+plot
+```
