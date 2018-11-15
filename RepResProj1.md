@@ -33,6 +33,8 @@ What is the average daily activity pattern?
 Imputing missing values
 -----------------------
 
+I am taking the mean for a specific interval to impute missing data.
+
     mergedForImputation<-merge(x=stepInfo, y=meanByInterval, by.x="interval", by.y="Group.1", all = TRUE)
     mergedForImputation$steps[is.na(mergedForImputation$steps)] = mergedForImputation$x[is.na(mergedForImputation$steps)]
     totalStepsPerDayImp <- aggregate(mergedForImputation$steps, by=list(mergedForImputation$date), FUN=sum)

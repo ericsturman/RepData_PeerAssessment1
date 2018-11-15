@@ -148,6 +148,7 @@ plot(x=meanByInterval$Group.1, y=meanByInterval$x, type = &quot;l&quot;, xlab=&q
 </div>
 <div id="imputing-missing-values" class="section level2">
 <h2>Imputing missing values</h2>
+<p>I am taking the mean for a specific interval to impute missing data.</p>
 <pre class="r"><code>mergedForImputation&lt;-merge(x=stepInfo, y=meanByInterval, by.x=&quot;interval&quot;, by.y=&quot;Group.1&quot;, all = TRUE)
 mergedForImputation$steps[is.na(mergedForImputation$steps)] = mergedForImputation$x[is.na(mergedForImputation$steps)]
 totalStepsPerDayImp &lt;- aggregate(mergedForImputation$steps, by=list(mergedForImputation$date), FUN=sum)
