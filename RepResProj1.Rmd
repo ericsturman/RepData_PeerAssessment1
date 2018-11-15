@@ -1,6 +1,6 @@
 ---
 title: "Reproducible Research Project 1"
-output: html_document
+output: md_document
 ---
 ```{r setoptions, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
